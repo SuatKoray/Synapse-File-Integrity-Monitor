@@ -1,0 +1,8 @@
+{
+    "monitor_path": ".", 
+    "file_extensions": [".txt", ".py", ".json", ".exe"],
+    "webhook_url": "",
+    "monitoring_interval": 5,
+    "log_file": "logs/synapse.log",
+    "db_file": "data/baseline.json"
+}

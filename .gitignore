@@ -1,0 +1,14 @@
+# Python derleme dosyaları
+__pycache__/
+*.py[cod]
+
+# Log dosyaları
+logs/
+*.log
+
+# Veritabanı
+data/
+*.json
+
+# Ancak config.json'ı şimdilik gönderebiliriz
+!config.json
