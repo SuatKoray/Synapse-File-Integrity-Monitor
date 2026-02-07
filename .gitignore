@@ -6,9 +6,9 @@ __pycache__/
 logs/
 *.log
 
-# Veritabanı
+# Veritabanı ve Tüm JSON'lar (Hepsini gizle)
 data/
 *.json
 
-# Ancak config.json'ı şimdilik gönderebiliriz
-!config.json
+# İSTİSNA: Sadece örnek dosyayı yayınla (Bunu ekle)
+!config.example.json

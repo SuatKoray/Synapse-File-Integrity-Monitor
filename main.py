@@ -3,6 +3,7 @@ import json
 import time
 import sys
 import hashlib
+import urllib.request  # Discord'a HTTP isteği atmak için (Harici kütüphane gerektirmez)
 
 # --- SABİTLER ---
 CONFIG_FILE = "config.json"
@@ -24,6 +25,7 @@ def create_directories(config):
     os.makedirs(log_dir, exist_ok=True)
     os.makedirs(data_dir, exist_ok=True)
 
+# --- KRİPTOGRAFİK İŞLEMLER ---
 def calculate_file_hash(filepath):
     sha256_hash = hashlib.sha256()
     try:
@@ -34,14 +36,10 @@ def calculate_file_hash(filepath):
     except (FileNotFoundError, PermissionError):
         return None
     except Exception as e:
-        # Sessizce geç, loglama ileride eklenecek
         return None
 
+# --- TARAMA MOTORU ---
 def scan_directory(path, extensions, silent=False):
-    """
-    Belirtilen klasörü tarar.
-    silent=True ise ekrana bilgi basmaz (Döngüde kirlilik olmasın diye).
-    """
     snapshot = {}
     if not silent:
         print(f"[TARAMA] {path} dizini haritalanıyor...", end="\r")
@@ -72,58 +70,112 @@ def save_baseline(baseline_data, db_path):
         print(f"[HATA] Veritabanı kaydedilemedi: {e}")
         return False
 
-# --- CANLI İZLEME MOTORU ---
+# --- BİLDİRİM SİSTEMİ ---
+def send_discord_alert(message, webhook_url):
+    """
+    Discord Webhook'una POST isteği gönderir.
+    GÜVENLİK NOTU: Harici kütüphane (requests) yerine yerleşik 'urllib' kullanıldı.
+    Bu sayede kod her ortamda çalışır ve bağımlılık yaratmaz.
+    """
+    if not webhook_url:
+        return # URL yoksa sessiz kal
+
+    data = {
+        "content": message,
+        "username": "Synapse Security"
+    }
+    
+    # JSON verisini hazırla ve byte'a çevir
+    json_data = json.dumps(data).encode('utf-8')
+    
+    # İsteği oluştur
+    req = urllib.request.Request(
+        webhook_url, 
+        data=json_data, 
+        headers={
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0' # Bazı sunucular User-Agent olmadan reddeder
+        }
+    )
+    
+    try:
+        with urllib.request.urlopen(req) as response:
+            # Başarılı olursa (200 OK) sessizce devam et
+            pass
+    except Exception as e:
+        print(f"[UYARI] Discord bildirimi gönderilemedi: {e}")
+
+# --- CANLI İZLEME DÖNGÜSÜ ---
 def start_monitoring(config):
     db_path = config.get("db_file", "data/baseline.json")
+    webhook_url = config.get("webhook_url", "")
     
-    # 1. Başlangıçta veritabanı var mı kontrol et
+    # Başlangıç kontrolü
     if not os.path.exists(db_path):
         print("[UYARI] Referans veritabanı bulunamadı. İlk tarama yapılıyor...")
         initial_snapshot = scan_directory(config['monitor_path'], config['file_extensions'])
         save_baseline(initial_snapshot, db_path)
     
-    # 2. Mevcut veritabanını hafızaya yükle
+    # Veritabanını yükle
     with open(db_path, 'r') as f:
         baseline = json.load(f)
         
-    print(f"\n[SİSTEM] CANLI İZLEME BAŞLATILDI. ({config['monitoring_interval']} sn aralık)")
+    print(f"\n[SİSTEM] CANLI İZLEME AKTİF. ({config['monitoring_interval']} sn aralık)")
+    if webhook_url:
+        print("[SİSTEM] Discord Entegrasyonu: AÇIK")
+        send_discord_alert("✅ **Synapse Güvenlik Sistemi Başlatıldı!**", webhook_url)
+    else:
+        print("[SİSTEM] Discord Entegrasyonu: KAPALI (URL Girilmedi)")
+        
     print("[BİLGİ] Çıkmak için 'Ctrl + C' tuşlarına basın.\n")
 
     try:
         while True:
-            # Belirlenen süre kadar uyu (CPU Tasarrufu)
             time.sleep(config['monitoring_interval'])
             
-            # Anlık durumu çek (Sessiz modda)
+            # Sessiz tarama
             current_snapshot = scan_directory(config['monitor_path'], config['file_extensions'], silent=True)
             
             changes_detected = False
-            
-            # A. SİLİNENLERİ KONTROL ET (Baseline'da var, Current'ta yok)
+            alert_messages = []
+
+            # A. SİLİNENLER
             for filepath in list(baseline.keys()):
                 if filepath not in current_snapshot:
-                    print(f"!!! [ALARM] DOSYA SİLİNDİ: {filepath}")
+                    msg = f"🚨 **ALARM: DOSYA SİLİNDİ!**\n`{filepath}`"
+                    print(msg.replace("*", "").replace("`", "")) 
+                    alert_messages.append(msg)
                     changes_detected = True
 
-            # B. YENİ ve DEĞİŞENLERİ KONTROL ET
+            # B. YENİ ve DEĞİŞENLER
             for filepath, current_hash in current_snapshot.items():
                 if filepath not in baseline:
-                    print(f"!!! [ALARM] YENİ DOSYA: {filepath}")
+                    msg = f"⚠️ **ALARM: YENİ DOSYA TESPİT EDİLDİ!**\n`{filepath}`"
+                    print(msg.replace("*", "").replace("`", ""))
+                    alert_messages.append(msg)
                     changes_detected = True
                 elif baseline[filepath] != current_hash:
-                    print(f"!!! [ALARM] DEĞİŞİKLİK TESPİT EDİLDİ: {filepath}")
+                    msg = f"🔥 **KRİTİK ALARM: DOSYA DEĞİŞTİRİLDİ!**\n`{filepath}`"
+                    print(msg.replace("*", "").replace("`", ""))
+                    alert_messages.append(msg)
                     changes_detected = True
             
-            # C. EĞER DEĞİŞİKLİK VARSA VERİTABANINI GÜNCELLE
+            # C. EĞER DEĞİŞİKLİK VARSA BİLDİR VE KAYDET
             if changes_detected:
+
+                for msg in alert_messages:
+                    send_discord_alert(msg, webhook_url)
+                
+                
                 baseline = current_snapshot
                 save_baseline(baseline, db_path)
-                print("[SİSTEM] Veritabanı yeni duruma göre güncellendi.\n")
+                print("[SİSTEM] Veritabanı güncellendi.\n")
 
     except KeyboardInterrupt:
         print("\n[SİSTEM] İzleme kullanıcı tarafından durduruldu.")
+        send_discord_alert("🛑 **Synapse Sistemi Kapatıldı.**", webhook_url)
 
-# --- ANA BLOK ---
+# --- ANA GİRİŞ ---
 if __name__ == "__main__":
     print("="*50)
     print("   SYNAPSE - Dosya Bütünlük İzleyicisi (v1.0)")
@@ -132,5 +184,4 @@ if __name__ == "__main__":
     config = load_config()
     if config:
         create_directories(config)
-        # Doğrudan izlemeyi başlatıyoruz
         start_monitoring(config)
