@@ -32,21 +32,21 @@
 
 ---
 
+Markdown
+
 ## 🛠️ Installation & Usage
 
 ### 1. Clone the Repository
 Open your terminal and run the following commands:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Synapse.git
+git clone [https://github.com/SuatKoray/Synapse.git](https://github.com/SuatKoray/Synapse.git)
 cd Synapse
 
-### 2. Configure Settings
-
+2. Configure Settings
 Rename config.example.json to config.json and edit it with your preferences.
 
-
-```json
+JSON
 
 {
     "monitor_path": ".",
@@ -57,11 +57,10 @@ Rename config.example.json to config.json and edit it with your preferences.
     "db_file": "data/baseline.json"
 }
 
-### 3. Run Synapse
+3. Run Synapse
+Simply run the script with Python:
 
-Execute the main script. The system will automatically create the baseline database on the first run.
-
-```bash
+Bash
 
 python main.py
 
