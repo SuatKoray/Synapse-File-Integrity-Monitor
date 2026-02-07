@@ -5,20 +5,30 @@
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey?style=for-the-badge)
 
-**Synapse**, a lightweight, zero-dependency File Integrity Monitoring (FIM) tool written in Python. It detects unauthorized file creations, modifications, and deletions in real-time using SHA-256 hashing algorithms.
+**Synapse**, a lightweight, zero-dependency **File Integrity Monitoring (FIM)** tool written in Python. It detects unauthorized file creations, modifications, and deletions in real-time using **SHA-256** hashing algorithms.
 
-Designed for **Blue Team** operations and **PCI-DSS** compliance monitoring needs.
+> 🎯 Designed for **Blue Team** operations, **SOC Analysts**, and **PCI-DSS** compliance monitoring needs.
+
+---
+
+## 📸 Screenshots
+
+| **Real-Time Discord Alerts** | **Console Monitoring** |
+|:---:|:---:|
+| ![Discord Alert](https://via.placeholder.com/400x200?text=Upload+Your+Discord+Screenshot+Here) | ![Console Output](https://via.placeholder.com/400x200?text=Upload+Your+Console+Screenshot+Here) |
+
+*(Synapse sends instant notifications to your Discord channel via Webhooks when a file change is detected.)*
 
 ---
 
 ## 🚀 Features
 
-- **🔎 Real-Time Monitoring:** Continuously scans critical directories for changes.
-- **🔐 SHA-256 Hashing:** Uses cryptographic hashing to detect even the slightest byte-level modifications.
-- **⚡ Memory Efficient:** Implements "Chunking" (4KB blocks) to handle large files (GBs/TBs) without memory overflow.
-- **🔔 Discord Integration:** Sends instant alerts to your Discord channel via Webhooks.
-- **⚙️ Configurable:** JSON-based configuration for easy management without touching the code.
-- **📦 Zero Dependencies:** Runs on standard Python libraries (`hashlib`, `json`, `os`, `urllib`). No `pip install` required.
+* **🔎 Real-Time Monitoring:** Continuously polls critical directories for changes.
+* **🔐 SHA-256 Hashing:** Uses cryptographic hashing to generate unique digital signatures.
+* **⚡ Memory Efficient:** Implements **"Chunking" (4KB blocks)** to handle large files (GBs/TBs) without RAM overflow.
+* **🔔 Discord Integration:** Sends detailed alerts to your Discord channel via Webhooks.
+* **📦 Zero Dependencies:** Runs on standard Python libraries (`hashlib`, `json`, `os`, `urllib`). **No `pip install` required.**
+* **⚙️ Configurable:** JSON-based configuration allows easy management.
 
 ---
 
@@ -33,9 +43,11 @@ cd Synapse
 
 ### 2. Configure Settings
 
-Edit the `config.json` file to set your target directory and Discord Webhook URL.
+Rename config.example.json to config.json and edit it with your preferences.
+
 
 ```json
+
 {
     "monitor_path": ".",
     "file_extensions": [".txt", ".py", ".json", ".exe"],
@@ -47,34 +59,32 @@ Edit the `config.json` file to set your target directory and Discord Webhook URL
 
 ### 3. Run Synapse
 
-Simply run the script with Python:
+Execute the main script. The system will automatically create the baseline database on the first run.
 
 ```bash
+
 python main.py
 
 
 ![alt text](image.png)
 
 🧠 How It Works
-1. Baseline Creation: On the first run, Synapse calculates SHA-256 hashes of all target files and saves them to a secure local database (data/baseline.json).
+Baseline Creation: On the first startup, Synapse calculates SHA-256 hashes of all target files and saves them to a secure local database (data/baseline.json).
 
-2. Continuous Polling: The system wakes up every X seconds (defined in config) to re-scan the directory.
+Continuous Polling: The system wakes up every X seconds (defined in config) to silently re-scan the directory.
 
-3. Comparison Logic:
+Comparison Logic:
 
-  • New File: Present in current scan but missing in baseline.
+⚠️ New File: File exists in current scan but missing in baseline.
 
-  • Deleted File: Present in baseline but missing in current scan.
+🚨 Deleted File: File exists in baseline but missing in current scan.
 
-  • Modified File: Hash mismatch between baseline and current scan.
+🔥 Modified File: Hash mismatch between baseline and current scan (Critical).
 
-4. Alerting: If a deviation is detected, it logs to the console and sends a payload to the Discord Webhook.
-
+Alerting: If a deviation is detected, it logs to the console and pushes a payload to the Discord Webhook.
 
 ⚠️ Disclaimer
-This tool is developed for educational and defensive purposes only. The developer is not responsible for any misuse of this software.
-
+This tool is developed for educational and defensive purposes only. The developer is not responsible for any misuse of this software. Always obtain permission before monitoring systems you do not own.
 
 📜 License
 This project is licensed under the MIT License - see the LICENSE file for details.
-
