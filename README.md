@@ -25,6 +25,56 @@ Designed for **Blue Team** operations and **PCI-DSS** compliance monitoring need
 ## 🛠️ Installation & Usage
 
 ### 1. Clone the Repository
+Open your terminal and run the following commands:
+
 ```bash
-git clone [https://github.com/YOUR_USERNAME/Synapse.git](https://github.com/YOUR_USERNAME/Synapse.git)
+git clone https://github.com/YOUR_USERNAME/Synapse.git
 cd Synapse
+
+### 2. Configure Settings
+
+Edit the `config.json` file to set your target directory and Discord Webhook URL.
+
+```json
+{
+    "monitor_path": ".",
+    "file_extensions": [".txt", ".py", ".json", ".exe"],
+    "webhook_url": "YOUR_DISCORD_WEBHOOK_URL_HERE",
+    "monitoring_interval": 5,
+    "log_file": "logs/synapse.log",
+    "db_file": "data/baseline.json"
+}
+
+### 3. Run Synapse
+
+Simply run the script with Python:
+
+```bash
+python main.py
+
+
+![alt text](image.png)
+
+🧠 How It Works
+1. Baseline Creation: On the first run, Synapse calculates SHA-256 hashes of all target files and saves them to a secure local database (data/baseline.json).
+
+2. Continuous Polling: The system wakes up every X seconds (defined in config) to re-scan the directory.
+
+3. Comparison Logic:
+
+  • New File: Present in current scan but missing in baseline.
+
+  • Deleted File: Present in baseline but missing in current scan.
+
+  • Modified File: Hash mismatch between baseline and current scan.
+
+4. Alerting: If a deviation is detected, it logs to the console and sends a payload to the Discord Webhook.
+
+
+⚠️ Disclaimer
+This tool is developed for educational and defensive purposes only. The developer is not responsible for any misuse of this software.
+
+
+📜 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
