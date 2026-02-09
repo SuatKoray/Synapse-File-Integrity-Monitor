@@ -77,7 +77,7 @@ def send_discord_alert(message, webhook_url):
     Bu sayede kod her ortamda çalışır ve bağımlılık yaratmaz.
     """
     if not webhook_url:
-        return # URL yoksa sessiz kal
+        return 
 
     data = {
         "content": message,
@@ -87,7 +87,7 @@ def send_discord_alert(message, webhook_url):
     # JSON verisini hazırla ve byte'a çevir
     json_data = json.dumps(data).encode('utf-8')
     
-    # İsteği oluştur
+
     req = urllib.request.Request(
         webhook_url, 
         data=json_data, 
@@ -109,13 +109,13 @@ def start_monitoring(config):
     db_path = config.get("db_file", "data/baseline.json")
     webhook_url = config.get("webhook_url", "")
     
-    # Başlangıç kontrolü
+
     if not os.path.exists(db_path):
         print("[UYARI] Referans veritabanı bulunamadı. İlk tarama yapılıyor...")
         initial_snapshot = scan_directory(config['monitor_path'], config['file_extensions'])
         save_baseline(initial_snapshot, db_path)
     
-    # Veritabanını yükle
+
     with open(db_path, 'r') as f:
         baseline = json.load(f)
         
@@ -132,7 +132,7 @@ def start_monitoring(config):
         while True:
             time.sleep(config['monitoring_interval'])
             
-            # Sessiz tarama
+            
             current_snapshot = scan_directory(config['monitor_path'], config['file_extensions'], silent=True)
             
             changes_detected = False
