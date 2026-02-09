@@ -5,7 +5,7 @@ import sys
 import hashlib
 import urllib.request  # Discord'a HTTP isteği atmak için (Harici kütüphane gerektirmez)
 
-# --- SABİTLER ---
+# ---  SABİTLER  ---
 CONFIG_FILE = "config.json"
 
 def load_config():
@@ -73,8 +73,7 @@ def save_baseline(baseline_data, db_path):
 # --- BİLDİRİM SİSTEMİ ---
 def send_discord_alert(message, webhook_url):
     """
-    Discord Webhook'una POST isteği gönderir.
-    GÜVENLİK NOTU: Harici kütüphane (requests) yerine yerleşik 'urllib' kullanıldı.
+    Harici kütüphane (requests) yerine yerleşik 'urllib' kullanıldı.
     Bu sayede kod her ortamda çalışır ve bağımlılık yaratmaz.
     """
     if not webhook_url:
@@ -175,7 +174,7 @@ def start_monitoring(config):
         print("\n[SİSTEM] İzleme kullanıcı tarafından durduruldu.")
         send_discord_alert("🛑 **Synapse Sistemi Kapatıldı.**", webhook_url)
 
-# --- ANA GİRİŞ ---
+# ---  ANA GİRİŞ  ---
 if __name__ == "__main__":
     print("="*50)
     print("   SYNAPSE - Dosya Bütünlük İzleyicisi (v1.0)")
