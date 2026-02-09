@@ -31,7 +31,7 @@ Designed for **Blue Team** operations and **PCI-DSS** compliance monitoring need
 ```
 
 ### 2. Configure Settings
-Rename config.example.json to config.json and edit it with your preferences.
+Edit the config.json file to set your target directory and Discord Webhook URL.
 
  ```json
 
@@ -52,7 +52,11 @@ Simply run the script with Python:
 python main.py
  ```
 
-![alt text](image.png)
+
+<p align="center">
+  <img src="image.png" alt="alt text" width="450">
+</p>
+
 
 ## 🧠 How It Works
 
@@ -70,8 +74,8 @@ Comparison Logic:
 
 Alerting: If a deviation is detected, it logs to the console and pushes a payload to the Discord Webhook.
 
-⚠️ Disclaimer
+## ⚠️ Disclaimer
 This tool is developed for educational and defensive purposes only. The developer is not responsible for any misuse of this software. Always obtain permission before monitoring systems you do not own.
 
-📜 License
+## 📜 License
 This project is licensed under the MIT License - see the [LICENCE](LICENCE) file for details.   
