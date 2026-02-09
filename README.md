@@ -33,7 +33,7 @@ Designed for **Blue Team** operations and **PCI-DSS** compliance monitoring need
 ### 2. Configure Settings
 Rename config.example.json to config.json and edit it with your preferences.
 
-JSON
+ ```json
 
 {
     "monitor_path": ".",
@@ -43,18 +43,19 @@ JSON
     "log_file": "logs/synapse.log",
     "db_file": "data/baseline.json"
 }
+ ```
 
 ### 3. Run Synapse
 Simply run the script with Python:
 
-Bash
-
+ ```bash
 python main.py
-
+ ```
 
 ![alt text](image.png)
 
-🧠 How It Works
+## 🧠 How It Works
+
 Baseline Creation: On the first startup, Synapse calculates SHA-256 hashes of all target files and saves them to a secure local database (data/baseline.json).
 
 Continuous Polling: The system wakes up every X seconds (defined in config) to silently re-scan the directory.
@@ -73,4 +74,4 @@ Alerting: If a deviation is detected, it logs to the console and pushes a payloa
 This tool is developed for educational and defensive purposes only. The developer is not responsible for any misuse of this software. Always obtain permission before monitoring systems you do not own.
 
 📜 License
-This project is licensed under the MIT License - see the [LICENCE](LICENCE) file for details.
+This project is licensed under the MIT License - see the [LICENCE](LICENCE) file for details.   
